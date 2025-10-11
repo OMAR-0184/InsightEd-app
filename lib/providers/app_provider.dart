@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import '../api/api_service.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
+import '../api/api_service.dart';
 import 'package:file_picker/file_picker.dart';
 import '../models/quiz_question.dart';
 
@@ -17,7 +19,9 @@ class AppProvider extends ChangeNotifier {
   String? errorMessage;
   List<int> timePerQuestion = [];
 
-  AppProvider(this.apiService);
+  AppProvider(this.apiService) {
+    loadState();
+  }
 
   void _clearError() {
     if (errorMessage != null) {
@@ -59,9 +63,9 @@ class AppProvider extends ChangeNotifier {
     isLoading = true;
     _clearError();
     notifyListeners();
-    
+
     final (error, summaryData) = await apiService.generateSummary(uploadedFilename!);
-    
+
     if (error != null) {
       errorMessage = error;
       summary = null;
@@ -81,7 +85,7 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
 
     final (error, questionsData) = await apiService.generateQuiz(uploadedFilename!, numQuestions);
-    
+
     if (error != null) {
       errorMessage = error;
       quizQuestions = null;
@@ -98,7 +102,7 @@ class AppProvider extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
-  
+
   void submitAnswer(int questionIndex, String answer) {
     if (questionIndex < userAnswers.length) {
       userAnswers[questionIndex] = answer;
@@ -115,11 +119,47 @@ class AppProvider extends ChangeNotifier {
     }
     notifyListeners();
   }
-  
+
   void resetQuiz() {
     quizQuestions = null;
     userAnswers = [];
     score = 0;
     timePerQuestion = [];
+    notifyListeners(); // Important to notify listeners after resetting
+  }
+
+  // Method to save the entire app state
+  Future<void> saveState() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('uploadedFilename', uploadedFilename ?? '');
+    await prefs.setString('summary', summary ?? '');
+    if (quizQuestions != null) {
+      // Convert list of QuizQuestion objects to a list of JSON maps, then encode to a string
+      await prefs.setString('quizQuestions', json.encode(quizQuestions!.map((q) => q.toJson()).toList()));
+    } else {
+      // If there are no questions, remove the key from storage
+      await prefs.remove('quizQuestions');
+    }
+  }
+
+  // Method to load the app state
+  Future<void> loadState() async {
+    final prefs = await SharedPreferences.getInstance();
+    uploadedFilename = prefs.getString('uploadedFilename');
+    summary = prefs.getString('summary');
+    final quizQuestionsString = prefs.getString('quizQuestions');
+
+    if (quizQuestionsString != null && quizQuestionsString.isNotEmpty) {
+      final decodedQuestions = json.decode(quizQuestionsString) as List<dynamic>;
+      quizQuestions = decodedQuestions.map((q) => QuizQuestion.fromJson(q)).toList();
+    }
+    notifyListeners();
+  }
+
+  // Override notifyListeners to save state on every change
+  @override
+  void notifyListeners() {
+    super.notifyListeners();
+    saveState();
   }
 }

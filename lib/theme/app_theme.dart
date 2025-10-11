@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// New, lighter color palette
 class AppColors {
-  static const Color primaryColor = Color(0xFF6A5AE0);
-  static const Color secondaryColor = Color(0xFF94E9F0);
-  static const Color accentColor = Color(0xFFFA7A35);
-  static const Color backgroundColor = Color(0xFFF2F5FF);
-  static const Color textColor = Color(0xFF1E2432);
+  static const Color primaryColor = Color(0xFF4A90E2); // A calm, friendly blue
+  static const Color secondaryColor = Color(0xFFB8D8D8); // A light, muted cyan
+  static const Color accentColor = Color(0xFFF5A623); // A warm, inviting orange
+  static const Color backgroundColor = Color(0xFFF9F9F9); // A very light grey, like paper
+  static const Color textColor = Color(0xFF333333); // A dark grey for text, softer than pure black
+  static const Color borderColor = Color(0xFF000000); // Bold black for borders
 }
 
 class AppTheme {
@@ -15,7 +17,8 @@ class AppTheme {
       primaryColor: AppColors.primaryColor,
       scaffoldBackgroundColor: AppColors.backgroundColor,
       visualDensity: VisualDensity.adaptivePlatformDensity,
-      textTheme: GoogleFonts.poppinsTextTheme().apply(
+      // Using a more playful, sketch-like font
+      textTheme: GoogleFonts.patrickHandTextTheme().apply(
         bodyColor: AppColors.textColor,
         displayColor: AppColors.textColor,
       ),
@@ -27,13 +30,20 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryColor,
-          foregroundColor: Colors.white,
+          backgroundColor: Colors.white, 
+          foregroundColor: AppColors.textColor, 
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(12), 
+            side: const BorderSide(
+              color: AppColors.borderColor, 
+              width: 2.5, 
+            ),
           ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          textStyle: GoogleFonts.patrickHand(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );

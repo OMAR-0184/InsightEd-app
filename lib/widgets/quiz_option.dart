@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:insighted/theme/app_theme.dart';
+import '../theme/app_theme.dart';
 
 class QuizOption extends StatelessWidget {
   final String optionText;
@@ -18,23 +18,23 @@ class QuizOption extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
+        duration: const Duration(milliseconds: 200),
         curve: Curves.easeInOut,
         padding: const EdgeInsets.all(16.0),
         margin: const EdgeInsets.only(bottom: 12.0),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryColor : Colors.white.withOpacity(0.5),
+          color: isSelected ? AppColors.secondaryColor.withOpacity(0.5) : Colors.white,
           borderRadius: BorderRadius.circular(15),
           border: Border.all(
-            color: isSelected ? AppColors.primaryColor : Colors.white.withOpacity(0.8),
-            width: 2,
+            color: isSelected ? AppColors.borderColor : Colors.grey.shade300,
+            width: isSelected ? 2.5 : 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppColors.primaryColor.withOpacity(0.5),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 5,
+                    offset: const Offset(2, 2),
                   )
                 ]
               : [],
@@ -42,9 +42,9 @@ class QuizOption extends StatelessWidget {
         child: Text(
           optionText,
           style: TextStyle(
-            fontSize: 16,
+            fontSize: 18,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            color: isSelected ? Colors.white : AppColors.textColor,
+            color: AppColors.textColor,
           ),
         ),
       ),

@@ -7,7 +7,7 @@ import 'summary_screen.dart';
 import 'quiz_screen.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/animated_background.dart';
-import '../widgets/glass_container.dart';
+import '../widgets/sketch_card.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -42,11 +42,17 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: FadeInAnimation(child: widget),
                           ),
                           children: [
-                            Text('InsightEd', style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold)),
+                            Text(
+                              'InsightEd',
+                              style: Theme.of(context).textTheme.displayMedium?.copyWith(fontWeight: FontWeight.bold),
+                            ),
                             const SizedBox(height: 10),
-                            Text('Your intelligent learning companion.', style: Theme.of(context).textTheme.titleMedium),
+                            Text(
+                              'Your intelligent learning companion.',
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
                             const SizedBox(height: 50),
-                            GlassContainer(
+                            SketchCard( // Use SketchCard instead of GlassContainer
                               child: Column(
                                 children: [
                                   CustomButton(
@@ -56,7 +62,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   if (appProvider.uploadedFilename != null) ...[
                                     const SizedBox(height: 20),
-                                    Text('File: ${appProvider.uploadedFilename}', textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                    Text(
+                                      'File: ${appProvider.uploadedFilename}',
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
                                     const Divider(height: 40),
                                     CustomButton(
                                       onPressed: () {
@@ -68,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       icon: Icons.description_rounded,
                                     ),
                                     const SizedBox(height: 30),
-                                    Text('Number of Questions: ${_numQuestions.round()}', textAlign: TextAlign.center),
+                                    Text('Number of Questions: ${_numQuestions.round()}', style: const TextStyle(fontSize: 16)),
                                     Slider(
                                       value: _numQuestions,
                                       min: 1,
@@ -77,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       label: _numQuestions.round().toString(),
                                       onChanged: (double value) => setState(() => _numQuestions = value),
                                     ),
-                                    Text('Quiz Timer: ${_quizDurationMinutes.round()} minutes', textAlign: TextAlign.center),
+                                    Text('Quiz Timer: ${_quizDurationMinutes.round()} minutes', style: const TextStyle(fontSize: 16)),
                                     Slider(
                                       value: _quizDurationMinutes,
                                       min: 1,
@@ -108,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (appProvider.errorMessage != null)
                               Padding(
                                 padding: const EdgeInsets.only(top: 20.0),
-                                child: Text(appProvider.errorMessage!, style: const TextStyle(color: Colors.red)),
+                                child: Text(appProvider.errorMessage!, style: const TextStyle(color: Colors.red, fontSize: 16)),
                               ),
                           ],
                         ),

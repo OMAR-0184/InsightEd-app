@@ -6,6 +6,7 @@ import '../models/quiz_question.dart';
 import 'quiz_results_screen.dart';
 import '../widgets/quiz_option.dart';
 import '../providers/app_provider.dart';
+import '../theme/app_theme.dart';
 
 class QuizScreen extends StatefulWidget {
   final List<QuizQuestion> questions;
@@ -115,18 +116,29 @@ class _QuizScreenState extends State<QuizScreen> {
       appBar: AppBar(
         title: Text('Quiz - Question ${_currentIndex + 1}/${widget.questions.length}'),
         centerTitle: true,
+        backgroundColor: AppColors.backgroundColor,
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            LinearPercentIndicator(
-              width: MediaQuery.of(context).size.width - 48,
-              lineHeight: 20.0,
-              percent: _timerValue / widget.quizDurationInSeconds,
-              center: Text("$_timerValue s"),
-              barRadius: const Radius.circular(10),
-              progressColor: Colors.green,
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: AppColors.borderColor, width: 2.0),
+                // Corrected this line
+                borderRadius: BorderRadius.circular(10),
+              ),
+              padding: const EdgeInsets.all(2),
+              child: LinearPercentIndicator(
+                width: MediaQuery.of(context).size.width - 56,
+                lineHeight: 20.0,
+                percent: _timerValue / widget.quizDurationInSeconds,
+                center: Text("$_timerValue s", style: const TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold)),
+                barRadius: const Radius.circular(8), // This one is correct for the inner bar
+                backgroundColor: Colors.white,
+                progressColor: AppColors.primaryColor,
+              ),
             ),
             const SizedBox(height: 30),
             Expanded(
@@ -135,7 +147,7 @@ class _QuizScreenState extends State<QuizScreen> {
                   children: [
                     Text(
                       question.question,
-                      style: Theme.of(context).textTheme.headlineSmall,
+                      style: Theme.of(context).textTheme.headlineMedium,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 40),
@@ -160,9 +172,12 @@ class _QuizScreenState extends State<QuizScreen> {
                 ),
                 ElevatedButton(
                   onPressed: isLastQuestion ? _submitQuiz : _nextQuestion,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isLastQuestion ? Colors.green : Theme.of(context).primaryColor,
-                  ),
+                  style: isLastQuestion
+                      ? ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          foregroundColor: Colors.white,
+                        )
+                      : null,
                   child: Text(isLastQuestion ? 'Submit' : 'Next'),
                 ),
               ],

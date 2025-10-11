@@ -19,4 +19,13 @@ class QuizQuestion {
       description: json['Description'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'Question': question,
+      'Options': options,
+      'Answer': answer,
+      'Description': description,
+    };
+  }
 }
