@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb; // <-- THE FIX IS HERE
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../api/api_service.dart';
@@ -18,6 +18,9 @@ class AppProvider extends ChangeNotifier {
   int score = 0;
   String? errorMessage;
   List<int> timePerQuestion = [];
+
+  // --- NEW: For Bookmarks ---
+  Map<String, List<QuizQuestion>> bookmarkedQuestions = {};
 
   AppProvider(this.apiService) {
     loadState();
@@ -128,18 +131,59 @@ class AppProvider extends ChangeNotifier {
     notifyListeners(); // Important to notify listeners after resetting
   }
 
+  // --- NEW: Bookmark Methods ---
+
+  bool isBookmarked(String pdfName, QuizQuestion question) {
+    if (!bookmarkedQuestions.containsKey(pdfName)) {
+      return false;
+    }
+    return bookmarkedQuestions[pdfName]!
+        .any((q) => q.question == question.question);
+  }
+
+  void toggleBookmark(String pdfName, QuizQuestion question) {
+    if (isBookmarked(pdfName, question)) {
+      // Remove it
+      bookmarkedQuestions[pdfName]!
+          .removeWhere((q) => q.question == question.question);
+      if (bookmarkedQuestions[pdfName]!.isEmpty) {
+        bookmarkedQuestions.remove(pdfName);
+      }
+    } else {
+      // Add it
+      if (!bookmarkedQuestions.containsKey(pdfName)) {
+        bookmarkedQuestions[pdfName] = [];
+      }
+      bookmarkedQuestions[pdfName]!.add(question);
+    }
+    notifyListeners(); // This will trigger saveState
+  }
+
+  // --- END: Bookmark Methods ---
+
   // Method to save the entire app state
   Future<void> saveState() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('uploadedFilename', uploadedFilename ?? '');
     await prefs.setString('summary', summary ?? '');
+    
     if (quizQuestions != null) {
-      // Convert list of QuizQuestion objects to a list of JSON maps, then encode to a string
-      await prefs.setString('quizQuestions', json.encode(quizQuestions!.map((q) => q.toJson()).toList()));
+      await prefs.setString('quizQuestions',
+          json.encode(quizQuestions!.map((q) => q.toJson()).toList()));
     } else {
-      // If there are no questions, remove the key from storage
       await prefs.remove('quizQuestions');
     }
+
+    // --- NEW: Save Bookmarks ---
+    // Serialize the map into Map<String, List<Map<String, dynamic>>>
+    final serializableBookmarks = bookmarkedQuestions.map(
+      (pdfName, questions) => MapEntry(
+        pdfName,
+        questions.map((q) => q.toJson()).toList(),
+      ),
+    );
+    await prefs.setString(
+        'bookmarkedQuestionsMap', json.encode(serializableBookmarks));
   }
 
   // Method to load the app state
@@ -150,9 +194,29 @@ class AppProvider extends ChangeNotifier {
     final quizQuestionsString = prefs.getString('quizQuestions');
 
     if (quizQuestionsString != null && quizQuestionsString.isNotEmpty) {
-      final decodedQuestions = json.decode(quizQuestionsString) as List<dynamic>;
-      quizQuestions = decodedQuestions.map((q) => QuizQuestion.fromJson(q)).toList();
+      final decodedQuestions =
+          json.decode(quizQuestionsString) as List<dynamic>;
+      quizQuestions =
+          decodedQuestions.map((q) => QuizQuestion.fromJson(q)).toList();
     }
+
+    // --- NEW: Load Bookmarks ---
+    final bookmarksString = prefs.getString('bookmarkedQuestionsMap');
+    if (bookmarksString != null && bookmarksString.isNotEmpty) {
+      final decodedBookmarks =
+          json.decode(bookmarksString) as Map<String, dynamic>;
+      
+      bookmarkedQuestions = decodedBookmarks.map(
+        (pdfName, questionsList) => MapEntry(
+          pdfName,
+          (questionsList as List<dynamic>)
+              .map((q) => QuizQuestion.fromJson(q as Map<String, dynamic>))
+              .toList(),
+        ),
+      );
+    }
+    // --- END: Load Bookmarks ---
+
     notifyListeners();
   }
 

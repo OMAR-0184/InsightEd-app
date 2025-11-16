@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import '../widgets/animated_background.dart';
 import '../widgets/sketch_card.dart';
 import '../theme/app_theme.dart';
@@ -13,6 +13,8 @@ class SummaryScreen extends StatelessWidget {
     final List<TextSpan> children = [];
     final List<String> parts = text.split('**');
 
+    final defaultColor = Theme.of(context).textTheme.bodyLarge?.color;
+
     for (int i = 0; i < parts.length; i++) {
       if (i % 2 == 0) {
         children.add(TextSpan(text: parts[i]));
@@ -20,7 +22,8 @@ class SummaryScreen extends StatelessWidget {
         children.add(
           TextSpan(
             text: parts[i],
-            style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textColor),
+            // --- FIX ---
+            style: TextStyle(fontWeight: FontWeight.bold, color: defaultColor),
           ),
         );
       }
@@ -28,11 +31,11 @@ class SummaryScreen extends StatelessWidget {
 
     return TextSpan(
       children: children,
-      style: GoogleFonts.patrickHand(
-        fontSize: 22,
-        height: 1.8,
-        color: AppColors.textColor.withOpacity(0.85),
-      ),
+      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            height: 1.6,
+            // --- FIX ---
+            color: defaultColor?.withOpacity(0.85),
+          ),
     );
   }
 
@@ -52,7 +55,12 @@ class SummaryScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: AppColors.textColor),
+                        // --- FIX ---
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          color: Theme.of(context).iconTheme.color, // Use theme icon color
+                          size: 28,
+                        ),
                         onPressed: () => Navigator.of(context).pop(),
                       ),
                       const SizedBox(width: 10),
@@ -66,7 +74,7 @@ class SummaryScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 10), 
+                const SizedBox(height: 10),
                 Expanded(
                   child: SketchCard(
                     child: SingleChildScrollView(
